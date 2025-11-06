@@ -112,17 +112,23 @@ HTML_TEMPLATE = """
         <div id="menuScreen" class="menu-screen">
             <h2>Select Analysis Type</h2>
             <div class="menu-options">
-                <div class="menu-card" onclick="selectAnalysis('compliance')">
+                <div class="menu-card" onclick="console.log('[CLICK] Compliance card clicked'); selectAnalysis('compliance');" style="cursor: pointer;">
                     <h3>📊 Compliance Analysis</h3>
                     <p>Comprehensive multiset analysis for compliance monitoring</p>
                 </div>
-                <div class="menu-card insights" onclick="selectAnalysis('insights')">
+                <div class="menu-card insights" onclick="console.log('[CLICK] Insights card clicked'); selectAnalysis('insights');" style="cursor: pointer;">
                     <h3>💼 Business Insights</h3>
                     <p>Interactive analysis with custom filters</p>
                 </div>
             </div>
             <div id="dataStatus" class="alert alert-info hidden" style="margin-top: 30px;">
                 <strong>Existing data found!</strong> You can use previously parsed datasets.
+            </div>
+            <!-- Debug button -->
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-secondary" onclick="alert('JavaScript is working! selectAnalysis type: ' + typeof window.selectAnalysis);">
+                    🔍 Test JavaScript
+                </button>
             </div>
         </div>
         
@@ -152,12 +158,12 @@ HTML_TEMPLATE = """
             
             <div id="chartSection" class="hidden">
                 <div class="chart-tabs">
-                    <div class="chart-tab active" onclick="selectComplianceChart('dest_count')">Destinations by Count</div>
-                    <div class="chart-tab" onclick="selectComplianceChart('dest_amount')">Destinations by Amount</div>
-                    <div class="chart-tab" onclick="selectComplianceChart('dest_mean')">Mean Destination Amount</div>
-                    <div class="chart-tab" onclick="selectComplianceChart('origin_count')">Origins by Count</div>
-                    <div class="chart-tab" onclick="selectComplianceChart('origin_amount')">Origins by Amount</div>
-                    <div class="chart-tab" onclick="selectComplianceChart('origin_mean')">Mean Origin Amount</div>
+                    <div class="chart-tab active" onclick="selectComplianceChart('dest_count', this)">Destinations by Count</div>
+                    <div class="chart-tab" onclick="selectComplianceChart('dest_amount', this)">Destinations by Amount</div>
+                    <div class="chart-tab" onclick="selectComplianceChart('dest_mean', this)">Mean Destination Amount</div>
+                    <div class="chart-tab" onclick="selectComplianceChart('origin_count', this)">Origins by Count</div>
+                    <div class="chart-tab" onclick="selectComplianceChart('origin_amount', this)">Origins by Amount</div>
+                    <div class="chart-tab" onclick="selectComplianceChart('origin_mean', this)">Mean Origin Amount</div>
                 </div>
                 <div style="margin: 20px 0;">
                     <label style="font-weight: 500; margin-right: 10px;">Show Top:</label>
@@ -265,23 +271,30 @@ HTML_TEMPLATE = """
         let complianceChartData = {};
         let statusInterval;
         let currentTopN = 20;
-        
+
+        console.log('[DEBUG] Script loaded - defining functions');
+
         // Define all functions globally from the start
         window.selectAnalysis = function(type) {
-            console.log('selectAnalysis called with:', type);
+            console.log('[DEBUG] selectAnalysis called with:', type);
             try {
                 const menuScreen = document.getElementById('menuScreen');
                 const complianceScreen = document.getElementById('complianceScreen');
                 const insightsScreen = document.getElementById('insightsScreen');
-                
-                console.log('Elements found:', {
+
+                console.log('[DEBUG] Elements found:', {
                     menuScreen: !!menuScreen,
                     complianceScreen: !!complianceScreen,
                     insightsScreen: !!insightsScreen
                 });
-                
+
+                if (!menuScreen || !complianceScreen || !insightsScreen) {
+                    alert('ERROR: Required screen elements not found!');
+                    return;
+                }
+
                 menuScreen.classList.add('hidden');
-                
+
                 if (type === 'compliance') {
                     complianceScreen.classList.remove('hidden');
                     checkStatus();
@@ -290,10 +303,12 @@ HTML_TEMPLATE = """
                     initInsights();
                 }
             } catch (err) {
-                console.error('selectAnalysis error:', err);
+                console.error('[ERROR] selectAnalysis error:', err);
                 alert('Error switching screens: ' + err.message);
             }
         };
+
+        console.log('[DEBUG] selectAnalysis function defined:', typeof window.selectAnalysis);
         
         window.backToMenu = function() {
             document.querySelectorAll('.analysis-screen').forEach(s => s.classList.add('hidden'));
@@ -393,18 +408,20 @@ HTML_TEMPLATE = """
                 });
         };
         
-        window.selectComplianceChart = function(chartType) {
+        window.selectComplianceChart = function(chartType, clickedElement) {
             currentComplianceChart = chartType;
             document.querySelectorAll('.chart-tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
-            
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            }
+
             // If data not loaded yet, show message
             if (Object.keys(complianceChartData).length === 0) {
-                document.getElementById('complianceChartContainer').innerHTML = 
+                document.getElementById('complianceChartContainer').innerHTML =
                     '<div class="alert alert-info">⏳ Please wait for analysis to complete...</div>';
                 return;
             }
-            
+
             renderComplianceChart();
         };
         

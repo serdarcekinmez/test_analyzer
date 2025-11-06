@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click Handler Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 2.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .main-container { max-width: 1200px; width: 100%; }
+        .menu-screen { background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 40px; }
+        .menu-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .menu-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            padding: 30px;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-align: center;
+        }
+        .menu-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .menu-card.insights { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .menu-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
+        .analysis-screen { background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); padding: 40px; }
+        .hidden { display: none; }
+        .btn { padding: 12px 30px; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; margin: 5px; transition: all 0.3s; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .console-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .console-line { margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 Click Handler Test</h1>
+        <p>Standalone test for menu click functionality</p>
+    </div>
+
+    <div class="main-container">
+        <!-- Menu -->
+        <div id="menuScreen" class="menu-screen">
+            <h2>Select Analysis Type</h2>
+            <div class="menu-options">
+                <div class="menu-card" onclick="console.log('[CLICK] Compliance card clicked'); selectAnalysis('compliance');" style="cursor: pointer;">
+                    <h3>📊 Compliance Analysis</h3>
+                    <p>Test click handler for compliance</p>
+                </div>
+                <div class="menu-card insights" onclick="console.log('[CLICK] Insights card clicked'); selectAnalysis('insights');" style="cursor: pointer;">
+                    <h3>💼 Business Insights</h3>
+                    <p>Test click handler for insights</p>
+                </div>
+            </div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-secondary" onclick="alert('✅ JavaScript is working!\n\nselectAnalysis type: ' + typeof window.selectAnalysis);">
+                    🔍 Test JavaScript
+                </button>
+                <button class="btn btn-secondary" onclick="clearConsoleOutput();">
+                    🗑️ Clear Console
+                </button>
+            </div>
+            <div id="consoleOutput" class="console-output">
+                <div class="console-line">[INFO] Console output will appear here...</div>
+            </div>
+        </div>
+
+        <!-- Compliance Analysis Screen -->
+        <div id="complianceScreen" class="analysis-screen hidden">
+            <h2>📊 Compliance Analysis Screen</h2>
+            <p>✅ Click handler worked! You successfully navigated to the compliance screen.</p>
+            <button class="btn btn-secondary" onclick="backToMenu();" style="margin-top: 20px;">
+                ↩️ Back to Menu
+            </button>
+        </div>
+
+        <!-- Business Insights Screen -->
+        <div id="insightsScreen" class="analysis-screen hidden">
+            <h2>💼 Business Insights Screen</h2>
+            <p>✅ Click handler worked! You successfully navigated to the insights screen.</p>
+            <button class="btn btn-secondary" onclick="backToMenu();" style="margin-top: 20px;">
+                ↩️ Back to Menu
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Console logging wrapper
+        function logToConsole(message, color = '#00ff00') {
+            const consoleDiv = document.getElementById('consoleOutput');
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.style.color = color;
+            line.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            consoleDiv.appendChild(line);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+
+            // Also log to browser console
+            console.log(message);
+        }
+
+        function clearConsoleOutput() {
+            document.getElementById('consoleOutput').innerHTML = '<div class="console-line">[INFO] Console cleared...</div>';
+        }
+
+        logToConsole('[DEBUG] Script loaded - defining functions');
+
+        // Define all functions globally from the start
+        window.selectAnalysis = function(type) {
+            logToConsole('[DEBUG] selectAnalysis called with: ' + type, '#ffff00');
+            try {
+                const menuScreen = document.getElementById('menuScreen');
+                const complianceScreen = document.getElementById('complianceScreen');
+                const insightsScreen = document.getElementById('insightsScreen');
+
+                logToConsole('[DEBUG] Elements found: menuScreen=' + !!menuScreen + ', complianceScreen=' + !!complianceScreen + ', insightsScreen=' + !!insightsScreen);
+
+                if (!menuScreen || !complianceScreen || !insightsScreen) {
+                    logToConsole('[ERROR] Required screen elements not found!', '#ff0000');
+                    alert('ERROR: Required screen elements not found!');
+                    return;
+                }
+
+                menuScreen.classList.add('hidden');
+                logToConsole('[DEBUG] Menu screen hidden');
+
+                if (type === 'compliance') {
+                    complianceScreen.classList.remove('hidden');
+                    logToConsole('[SUCCESS] ✅ Compliance screen shown!', '#00ffff');
+                } else if (type === 'insights') {
+                    insightsScreen.classList.remove('hidden');
+                    logToConsole('[SUCCESS] ✅ Insights screen shown!', '#00ffff');
+                }
+            } catch (err) {
+                logToConsole('[ERROR] selectAnalysis error: ' + err.message, '#ff0000');
+                alert('Error switching screens: ' + err.message);
+            }
+        };
+
+        window.backToMenu = function() {
+            logToConsole('[DEBUG] backToMenu called');
+            document.querySelectorAll('.analysis-screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById('menuScreen').classList.remove('hidden');
+            logToConsole('[SUCCESS] ✅ Back to menu!', '#00ffff');
+        };
+
+        logToConsole('[DEBUG] selectAnalysis function defined: ' + typeof window.selectAnalysis);
+        logToConsole('[INFO] ✅ All functions loaded successfully!', '#00ff00');
+        logToConsole('[INFO] Click on a card above to test the handlers');
+
+        // Error handler
+        window.onerror = function(msg, url, line, col, error) {
+            logToConsole('[ERROR] JavaScript Error at line ' + line + ': ' + msg, '#ff0000');
+            return false;
+        };
+
+        // Verify DOM is ready
+        if (document.readyState === 'complete') {
+            logToConsole('[INFO] DOM is ready');
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                logToConsole('[INFO] DOM loaded event fired');
+            });
+        }
+    </script>
+</body>
+</html>
